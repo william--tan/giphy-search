@@ -12,12 +12,13 @@
  * Used Bootstrap for the interface
  * Randomized the color of the buttons
  * Loading screen while the animated version of the GIF is being loaded
+ * Made the sidebar fixed, so user can scroll through the gifs while still add new buttons.
 
  :sparkles:
  
  This is how I did the GIF pausing and the loading screen:
  
- 1) First, I created the "Loading Text" as a JQuery Object,  I also made a class called 'hidden' to make it hidden:
+ 1) First, I created the "Loading" text as a JQuery Object,  I also made a class called 'hidden' to make it hidden:
 
     ```javascript
     loadtext.css({'z-index': '100',
