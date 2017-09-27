@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Favorite Movies</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-8 col-xs-8 col-md-8 pull-left">
+        <div class="jumbotron">
+          <h1> Results <span id="gifcategory"></span></h1>
+          <div id="cards"> </div>
+        </div>
+      </div>
+        <div class="col-md-4 col-sm-4 col-xs-4 pull-right fixed-top sticky">
+          <div class="card sidebar">
+            <div class="card-header">
+              Create Button
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <label for="query">Search: </label>
+                  <input type="text" class="form-control" id="query">
+                  <small id="inputMsg" class="form-text text-muted"> Enter a GIF image category to create a button on the panel below that generates GIF images!</small>
+                </div>
+                <button class="btn btn-primary" id="queryBtn">Add Button</button>
+            </form>
+            </div>
+          </div>
+          <div class="card sidebar">
+            <div class="card-header">
+              Amount to Show
+            </div>
+            <div class="card-body text-center">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                  <button id="minus" type="button" class="btn"> − </button>
+                  <input id="numtoshow" type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' maxlength="2" class="btn btn-light"></input>
+                  <button id="add" type="button" class="btn"> + </button>
+                </div>
+            </div>
+          </div>
+          <div class="card sidebar">
+            <div class="card-header">
+              GIF Categories
+            </div>
+            <div class="card-body">
+              <div id="buttonsView"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      
+  </div>
+
+  <style>
+
+  .hidden{
+    visibility: hidden;
+  }
+
+  .buttons{
+    margin: 3px;
+    border: 0px;
+  }
+
+  #inputMsg::before{
+    content: "Message: ";
+  }
+
+  .sticky{
+    margin-left: 66.7%;
+    float:  right;
+  }
+
+  .sidebar{
+    margin-top: 20px;
+  }
+
+  .jumbotron{
+    margin-top: 20px;
+    padding: 10px;
+  }
+
+  .jumbotron h1{
+    font-size:  1.5em;
+    padding: 10px;
+  }
+
+ #numtoshow{
+  width: 80px;
+ }
+
+ /* For Firefox */
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+/* Webkit browsers like Safari and Chrome */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+</style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+      var btnArr = ["cat", "dog", "dank", "wtf", "fail", "doge", "dafuq"];
+      function LightenDarkenColor(col, amt) {
+        var usePound = false;
+            if (col[0] == "#") {
+                col = col.slice(1);
+                usePound = true;
+            }
+            var num = parseInt(col,16);
+            var r = (num >> 16) + amt;
+            if (r > 255) r = 255;
+            else if  (r < 0) r = 0;
+            var b = ((num >> 8) & 0x00FF) + amt;
+            if (b > 255) b = 255;
+            else if  (b < 0) b = 0;
+            var g = (num & 0x0000FF) + amt;
+            if (g > 255) g = 255;
+            else if (g < 0) g = 0;
+            return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+      }
+
+      function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      var display = function(){
+        $("#buttonsView").empty();
+        for (let i in btnArr)
+        {
+            //console.log(btnArr[i]);
+
+            var $btn = $("<button class='btn btn-primary round'>");
+            let clr = getRandomColor();
+            let lclr = LightenDarkenColor(clr, -5);
+            let dclr = LightenDarkenColor(clr, -20);
+            $btn.html(btnArr[i]);
+
+            $btn.css("background-color", lclr);
+            $btn.hover(function(){$(this).css("background-color", dclr);}, function(){$(this).css("background-color", lclr);})
+            $btn.addClass("buttons")
+            $("#buttonsView").append($btn);
+        }
+      };
+
+      $("#queryBtn").on("click", function(event) {
+        //console.log("hey");
+        event.preventDefault();
+        
+        var q = $("#query").val().trim();
+        if (btnArr.indexOf(q) != -1)
+          $("#inputMsg").html("Button already exists on the buttons view! Enter another category!");
+        if (q == "")
+          $("#inputMsg").html("It's empty! Please insert text to the above input form!")
+        if (q != "" && btnArr.indexOf(q) == -1){
+          btnArr.push(q);
+          display();
+          $("#query").val("");
+          $("#inputMsg").html("Enter a GIF image category to create a button on the panel below that generates GIF images!")
+        }
+      });
+
+      $("#numtoshow").val("10");
+
+      $("#add").on("click", function(){
+        if ($("#numtoshow").val() == "")
+          $("#numtoshow").val("0");
+        var amt = $("#numtoshow").val().trim();
+        amt = parseInt(amt);
+        if (amt <= 99) amt++;
+        $("#numtoshow").val(amt);
+
+      });
+
+      $("#minus").on("click", function(){
+        if ($("#numtoshow").val() == "")
+          $("#numtoshow").val("2");
+        var amt = $("#numtoshow").val().trim();
+        amt = parseInt(amt);
+        if (amt > 1) amt--;
+        $("#numtoshow").val(amt);
+
+
+      });
+
+      var activated = null;
+      $("#buttonsView").on("click", ".buttons", function(event){
+        event.preventDefault();
+        $("#gifcategory").html("for '"+$(this).html()+"'");
+        //var q_url= "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC";
+        var tagname = $(this).html();
+        var offset = Math.floor(Math.random()*200);
+        tagname = tagname.split(' ').join('+');
+        var amt = $("#numtoshow").val().trim();
+        var q_url ="https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC"+ "&q="+tagname+"&limit="+amt+"&offset="+offset;
+
+        var pic_s = [], pic_a = [], pic_r = [], pic_w = [];
+
+
+        $.ajax({
+          url:q_url,
+          method: "GET"
+        }).done(function(res){
+          //console.log(res);
+
+
+          for (let i in res.data)
+          {
+            let img = res.data[i].images;
+            pic_a.push(img.fixed_height.url);
+            pic_w.push(img.fixed_height.width);
+            pic_s.push(img.fixed_height_still.url);
+            pic_r.push(res.data[i].rating);
+          }
+
+          $("#cards").empty();
+          for (let i in pic_s){
+            var $card = $("<div class='card' style='width: "+pic_w[i]*0.85+"px;'>")
+            var $img = $("<img class='card-img-top'>");
+            $img.attr("src", pic_s[i]);
+            $img.attr("active", 0);
+            $img.attr("aurl", pic_a[i]);
+            $img.attr("surl", pic_s[i]);
+var loadtext = $("<p id='loading'> Loading </p>");
+loadtext.css({'z-index': '100',
+                  'position': 'absolute',
+                  'color': 'white',
+                  'font-size': '20px',
+                  'font-weight': 'bold',
+                  'transform': 'translate(-50%, -50%)',
+                  'left': "50%",
+                  'top': '40%'})
+            loadtext.addClass("hidden");
+            $card.append(loadtext);
+
+            $img.click(function(){
+            if ($(this).attr("active") == "1")
+              {
+                $(this).css("filter", "brightness(1)");
+                $(this).attr("active", "0");
+                $(this).attr("src", $(this).attr("surl"));
+              }
+              else
+              {
+                if (activated != null)
+                {
+                  activated.attr("active", "0");
+                  activated.attr("src", activated.attr("surl"));
+                }
+                $(this).attr("active", "1");
+                $(this).css("filter", "brightness(0.4)");
+                $(this).parent().children().eq(0).removeClass("hidden");
+                $(this).on("load", function(){
+                  $(this).css("filter", "brightness(1)");
+                  //console.log($(this).parent().children().eq(0));
+                  $(this).parent().children().eq(0).addClass("hidden")
+                })
+                $(this).attr("src", $(this).attr("aurl"));
+
+                  
+                activated = $(this);
+              }
+            })
+
+
+
+            var $crdbody = $("<div class='card-body'>");
+            var $txtbody = $("<p class='card-text text-center'>");
+            $crdbody.css("padding", "10px")
+            $txtbody.html("<strong>Rating: </strong>"+pic_r[i].toUpperCase());
+            
+            $card.css("display", "inline-block");
+            $card.css('margin', "3px");
+            $card.css('max-width', '500px')
+            $card.append($img);
+            $crdbody.append($txtbody);
+            $card.append($crdbody);
+
+            $card.first().on("load", function(){
+              $card.fadeIn();
+            })
+
+            $("#cards").append($card);
+
+            
+          }
+
+        })
+      })
+
+      display();
+
+
+      
+    </script>
+  </div>
+</body>
+
+</html>
